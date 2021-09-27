@@ -121,9 +121,19 @@ export const useReferenceArrayInputController = (
     const form = useForm();
     const onSelect = useCallback(
         (newIds: Identifier[]) => {
-            form.change(input.name, newIds);
+            // This could happen when user unselect all items using the datagrid for instance
+            if (newIds.length === 0) {
+                form.change(input.name, []);
+                return;
+            }
+
+            const newValue = new Set(input.value);
+            newIds.forEach(newId => {
+                newValue.add(newId);
+            });
+            form.change(input.name, Array.from(newValue));
         },
-        [form, input.name]
+        [form, input.value, input.name]
     );
 
     const onUnselectItems = useCallback(() => {
